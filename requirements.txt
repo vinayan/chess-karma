@@ -1,0 +1,8 @@
+# Chess Karma – Python dependencies
+# Install with:  pip install -r requirements.txt
+
+PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+PyQt6-sip>=13.6.0
+python-chess>=1.10.0
+miniaudio>=1.57
