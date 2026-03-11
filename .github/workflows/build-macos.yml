@@ -1,0 +1,87 @@
+# .github/workflows/build-macos.yml
+#
+# Builds Chess Karma for macOS and packages it as a .dmg file.
+#
+# Triggers:
+#   - Push to main / master  →  uploads the .dmg as a workflow artifact
+#   - Published GitHub Release  →  also attaches the .dmg to the release
+#   - Manual dispatch (Actions → Run workflow)
+#
+# Cost: FREE for public repositories (GitHub-hosted macOS runners are free
+#       for public repos with no minute cap).
+
+name: Build macOS Installer
+
+on:
+  push:
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    name: Build .app + .dmg on macOS
+    runs-on: macos-latest
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python environment ──────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      # ── 3. Pre-build steps ─────────────────────────────────────────────────
+      - name: Generate blank SQLite schema database
+        run: python tools/create_blank_db.py
+
+      - name: Convert icon.png → icon.icns
+        run: python tools/create_icns.py
+
+      # ── 4. PyInstaller ─────────────────────────────────────────────────────
+      - name: Bundle application with PyInstaller
+        run: pyinstaller chess_karma_mac.spec --clean --noconfirm
+
+      # ── 5. Package as .dmg ─────────────────────────────────────────────────
+      - name: Create installer directory
+        run: mkdir -p installer
+
+      - name: Create .dmg
+        run: |
+          # Staging folder for DMG contents
+          DMG_STAGING="$(mktemp -d)/dmg_contents"
+          mkdir -p "$DMG_STAGING"
+
+          # Copy .app and add an Applications symlink (drag-to-install UX)
+          cp -r "dist/Chess Karma.app" "$DMG_STAGING/"
+          ln -s /Applications "$DMG_STAGING/Applications"
+
+          # Build a compressed, read-only DMG
+          hdiutil create \
+            -volname   "Chess Karma" \
+            -srcfolder "$DMG_STAGING" \
+            -ov \
+            -format    UDZO \
+            installer/Chess_Karma_macOS.dmg
+
+      # ── 6. Upload artifact (always) ────────────────────────────────────────
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chess_Karma_macOS
+          path: installer/Chess_Karma_macOS.dmg
+
+      # ── 7. Attach to GitHub Release (only when a release is published) ─────
+      - name: Attach .dmg to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/Chess_Karma_macOS.dmg

@@ -35,7 +35,7 @@ from __future__ import annotations
 
 import chess
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QAction, QKeySequence
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -161,64 +161,13 @@ class MainWindow(QMainWindow):
     def _build_menu(self) -> None:
         menu_bar = self.menuBar()
 
-        # ── File ──────────────────────────────────────────────────────────────
-        file_menu = menu_bar.addMenu("&File")
-
-        sets_action = QAction("📚  &Puzzle Sets…", self)
-        sets_action.setShortcut("Ctrl+Shift+O")
-        sets_action.triggered.connect(self._on_open_puzzle_sets)
-        file_menu.addAction(sets_action)
-
-        file_menu.addSeparator()
-
-        exit_action = QAction("E&xit", self)
-        exit_action.setShortcut(QKeySequence.StandardKey.Quit)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-
         # ── Train ─────────────────────────────────────────────────────────────
         puzzle_menu = menu_bar.addMenu("&Train")
 
-        hint_action = QAction("&Hint", self)
-        hint_action.setShortcut("H")
-        hint_action.triggered.connect(self._on_hint)
-        puzzle_menu.addAction(hint_action)
-
-        solution_action = QAction("Show &Solution", self)
-        solution_action.setShortcut("S")
-        solution_action.triggered.connect(self._on_show_solution)
-        puzzle_menu.addAction(solution_action)
-
-        reset_action = QAction("&Reset Puzzle", self)
-        reset_action.setShortcut("R")
-        reset_action.triggered.connect(self._on_reset)
-        puzzle_menu.addAction(reset_action)
-
-        puzzle_menu.addSeparator()
-
-        next_action = QAction("&Next Puzzle", self)
-        next_action.setShortcut(QKeySequence("Right"))
-        next_action.triggered.connect(self._on_next)
-        puzzle_menu.addAction(next_action)
-
-        prev_action = QAction("&Previous Puzzle", self)
-        prev_action.setShortcut(QKeySequence("Left"))
-        prev_action.triggered.connect(self._on_prev)
-        puzzle_menu.addAction(prev_action)
-
-        # ── Puzzle Rush ───────────────────────────────────────────────────────
-        rush_menu = menu_bar.addMenu("⚡ &Rush")
-
-        self._rush_action = QAction("&Start Puzzle Rush…", self)
-        self._rush_action.setShortcut("Ctrl+R")
-        self._rush_action.triggered.connect(self._on_start_rush)
-        rush_menu.addAction(self._rush_action)
-
-        self._rush_abort_action = QAction("&Abort Rush", self)
-        self._rush_abort_action.setShortcut("Escape")
-        self._rush_abort_action.setEnabled(False)
-        self._rush_abort_action.triggered.connect(self._on_abort_rush)
-        rush_menu.addAction(self._rush_abort_action)
+        sets_action = QAction("📚  &Puzzles…", self)
+        sets_action.setShortcut("Ctrl+Shift+O")
+        sets_action.triggered.connect(self._on_open_puzzle_sets)
+        puzzle_menu.addAction(sets_action)
 
         # ── View ─────────────────────────────────────────────────────────────
         view_menu = menu_bar.addMenu("&View")
