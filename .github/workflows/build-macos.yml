@@ -23,6 +23,8 @@ jobs:
   build-macos:
     name: Build .app + .dmg on macOS
     runs-on: macos-latest
+    permissions:
+      contents: write   # required to upload assets to a GitHub Release
 
     steps:
       # ── 1. Checkout ────────────────────────────────────────────────────────
