@@ -47,6 +47,9 @@ jobs:
         run: python tools/create_icns.py
 
       # ── 4. PyInstaller ─────────────────────────────────────────────────────
+      - name: List repo root (debug)
+        run: ls -la
+
       - name: Bundle application with PyInstaller
         run: pyinstaller chess_karma_mac.spec --clean --noconfirm
 
